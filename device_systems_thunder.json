@@ -1,0 +1,20 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "device_systems API v2",
+  "dateExported": "2026-09-05T00:00:00.000Z",
+  "version": "1.1",
+  "requests": [
+    {"name": "Listar usuarios", "method": "GET", "url": "http://127.0.0.1:8000/users"},
+    {"name": "Consultar usuario", "method": "GET", "url": "http://127.0.0.1:8000/users/1"},
+    {"name": "Crear usuario", "method": "POST", "url": "http://127.0.0.1:8000/users", "headers": [{"name": "Content-Type", "value": "application/json"}], "body": {"type": "json", "raw": "{\n  \"name\": \"Carlos Mendoza\",\n  \"email\": \"carlos.mendoza@device-systems.com\",\n  \"role\": \"support\",\n  \"is_active\": true\n}"}},
+    {"name": "Reemplazar usuario (PUT)", "method": "PUT", "url": "http://127.0.0.1:8000/users/1", "headers": [{"name": "Content-Type", "value": "application/json"}], "body": {"type": "json", "raw": "{\"name\":\"Admin Actualizado\",\"email\":\"admin.updated@device-systems.com\",\"role\":\"admin\",\"is_active\":true}"}},
+    {"name": "Actualizar parcialmente (PATCH)", "method": "PATCH", "url": "http://127.0.0.1:8000/users/1", "headers": [{"name": "Content-Type", "value": "application/json"}], "body": {"type": "json", "raw": "{\"role\":\"support\"}"}},
+    {"name": "Eliminar usuario (DELETE)", "method": "DELETE", "url": "http://127.0.0.1:8000/users/3"},
+    {"name": "Error usuario inexistente", "method": "GET", "url": "http://127.0.0.1:8000/users/999"},
+    {"name": "Error PUT usuario inexistente", "method": "PUT", "url": "http://127.0.0.1:8000/users/999", "headers": [{"name": "Content-Type", "value": "application/json"}], "body": {"type": "json", "raw": "{\"name\":\"Usuario\",\"email\":\"usuario@device-systems.com\",\"role\":\"user\",\"is_active\":true}"}},
+    {"name": "Error PATCH vacio", "method": "PATCH", "url": "http://127.0.0.1:8000/users/1", "headers": [{"name": "Content-Type", "value": "application/json"}], "body": {"type": "json", "raw": "{}"}},
+    {"name": "Error DELETE usuario inexistente", "method": "DELETE", "url": "http://127.0.0.1:8000/users/999"},
+    {"name": "Error correo duplicado", "method": "POST", "url": "http://127.0.0.1:8000/users", "headers": [{"name": "Content-Type", "value": "application/json"}], "body": {"type": "json", "raw": "{\"name\":\"Duplicado\",\"email\":\"admin@device-systems.com\",\"role\":\"user\",\"is_active\":true}"}},
+    {"name": "Error datos invalidos", "method": "POST", "url": "http://127.0.0.1:8000/users", "headers": [{"name": "Content-Type", "value": "application/json"}], "body": {"type": "json", "raw": "{\"name\":\"A\",\"email\":\"correo-invalido\",\"role\":\"unknown\",\"is_active\":true}"}}
+  ]
+}

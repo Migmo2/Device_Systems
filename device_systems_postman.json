@@ -1,0 +1,23 @@
+{
+  "info": {
+    "name": "device_systems API v2",
+    "description": "CRUD completo de usuarios y escenarios de error",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [{"key": "base_url", "value": "http://127.0.0.1:8000"}],
+  "item": [
+    {"name": "Listar usuarios", "request": {"method": "GET", "url": "{{base_url}}/users"}},
+    {"name": "Consultar usuario", "request": {"method": "GET", "url": "{{base_url}}/users/1"}},
+    {"name": "Filtrar usuarios", "request": {"method": "GET", "url": "{{base_url}}/users?role=admin"}},
+    {"name": "Crear usuario", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"Carlos Mendoza\",\n  \"email\": \"carlos.mendoza@device-systems.com\",\n  \"role\": \"support\",\n  \"is_active\": true\n}"}, "url": "{{base_url}}/users"}},
+    {"name": "Reemplazar usuario (PUT)", "request": {"method": "PUT", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"Admin Actualizado\",\n  \"email\": \"admin.updated@device-systems.com\",\n  \"role\": \"admin\",\n  \"is_active\": true\n}"}, "url": "{{base_url}}/users/1"}},
+    {"name": "Actualizar parcialmente (PATCH)", "request": {"method": "PATCH", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"role\": \"support\"}"}, "url": "{{base_url}}/users/1"}},
+    {"name": "Eliminar usuario (DELETE)", "request": {"method": "DELETE", "url": "{{base_url}}/users/3"}},
+    {"name": "Error usuario inexistente", "request": {"method": "GET", "url": "{{base_url}}/users/999"}},
+    {"name": "Error PUT usuario inexistente", "request": {"method": "PUT", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"name\":\"Usuario\",\"email\":\"usuario@device-systems.com\",\"role\":\"user\",\"is_active\":true}"}, "url": "{{base_url}}/users/999"}},
+    {"name": "Error PATCH vacio", "request": {"method": "PATCH", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{}"}, "url": "{{base_url}}/users/1"}},
+    {"name": "Error DELETE usuario inexistente", "request": {"method": "DELETE", "url": "{{base_url}}/users/999"}},
+    {"name": "Error correo duplicado", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"name\":\"Duplicado\",\"email\":\"admin@device-systems.com\",\"role\":\"user\",\"is_active\":true}"}, "url": "{{base_url}}/users"}},
+    {"name": "Error datos invalidos", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\"name\":\"A\",\"email\":\"correo-invalido\",\"role\":\"unknown\",\"is_active\":true}"}, "url": "{{base_url}}/users"}}
+  ]
+}
