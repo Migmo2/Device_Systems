@@ -91,6 +91,11 @@ device_systems/
 ├── alembic/
 │   └── versions/
 ├── evidencias/
+│   ├── ev07/
+│   ├── ev08/
+│   ├── ev09/
+│   ├── ev10/
+│   └── ev11/
 ├── tests/
 ├── alembic.ini
 ├── requirements.txt
@@ -223,7 +228,50 @@ Crear prestamo:
 python -m pytest -q
 ```
 
-La suite cubre CRUD de usuarios, persistencia, dispositivos, prestamos, joins, devolucion, JWT, roles, ocultamiento del hash y rate limiting. Las capturas heredadas de EV08 estan en `evidencias/`; las colecciones reproducibles estan en `device_systems_postman.json` y `device_systems_thunder.json`.
+La suite cubre CRUD de usuarios, persistencia, dispositivos, prestamos, joins, devolucion, JWT, roles, ocultamiento del hash y rate limiting. Las capturas estan clasificadas por guia en `evidencias/`; las colecciones reproducibles estan en `device_systems_postman.json` y `device_systems_thunder.json`.
+
+### EV07 - Fundamentos
+
+Capturas base de GET, POST, validaciones, filtros, response models y cabeceras:
+
+- [1.png](evidencias/ev07/1.png), [2.png](evidencias/ev07/2.png), [3.png](evidencias/ev07/3.png)
+- [4.0.png](evidencias/ev07/4.0.png), [4.1.png](evidencias/ev07/4.1.png)
+- [5.0.png](evidencias/ev07/5.0.png), [5.1.png](evidencias/ev07/5.1.png)
+
+### EV08 - CRUD y errores
+
+| Requisito | Evidencia |
+| --- | --- |
+| Swagger y ReDoc | [6_swagger_crud.png](evidencias/ev08/6_swagger_crud.png), [7_redoc_crud.png](evidencias/ev08/7_redoc_crud.png), [7.1_redoc_crud.png](evidencias/ev08/7.1_redoc_crud.png) |
+| POST, PUT y PATCH | [8_post_exitoso.png](evidencias/ev08/8_post_exitoso.png), [9_put_exitoso.png](evidencias/ev08/9_put_exitoso.png), [10_patch_exitoso.png](evidencias/ev08/10_patch_exitoso.png) |
+| DELETE | [11_delete_exitoso.png](evidencias/ev08/11_delete_exitoso.png) |
+| Errores controlados | [12_error_correo_duplicado.png](evidencias/ev08/12_error_correo_duplicado.png), [13_error_datos_invalidos.png](evidencias/ev08/13_error_datos_invalidos.png), [14_error_patch_vacio.png](evidencias/ev08/14_error_patch_vacio.png), [15_error_put_inexistente.png](evidencias/ev08/15_error_put_inexistente.png), [16_error_delete_inexistente.png](evidencias/ev08/16_error_delete_inexistente.png) |
+
+### EV09 - SQLAlchemy y persistencia
+
+Capturas de estructura, SQLite, Swagger, CRUD, filtros, errores, persistencia entre sesiones y Git Flow:
+
+[18_estructura_proyecto_ev09.png](evidencias/ev09/18_estructura_proyecto_ev09.png) · [19_base_datos_sqlite_ev09.png](evidencias/ev09/19_base_datos_sqlite_ev09.png) · [20_swagger_sqlalchemy.png](evidencias/ev09/20_swagger_sqlalchemy.png) · [21_redoc_ev09.png](evidencias/ev09/21_redoc_ev09.png) · [22_post_usuario_sqlalchemy.png](evidencias/ev09/22_post_usuario_sqlalchemy.png) · [23_get_lista_sqlalchemy.png](evidencias/ev09/23_get_lista_sqlalchemy.png) · [24_get_usuario_id_sqlalchemy.png](evidencias/ev09/24_get_usuario_id_sqlalchemy.png) · [25_filtro_rol_sqlalchemy.png](evidencias/ev09/25_filtro_rol_sqlalchemy.png) · [26_filtro_estado_sqlalchemy.png](evidencias/ev09/26_filtro_estado_sqlalchemy.png) · [27_ordenamiento_sqlalchemy.png](evidencias/ev09/27_ordenamiento_sqlalchemy.png) · [28_put_sqlalchemy.png](evidencias/ev09/28_put_sqlalchemy.png) · [29_patch_sqlalchemy.png](evidencias/ev09/29_patch_sqlalchemy.png) · [30_delete_sqlalchemy.png](evidencias/ev09/30_delete_sqlalchemy.png) · [31_usuario_eliminado_404.png](evidencias/ev09/31_usuario_eliminado_404.png) · [32_error_email_duplicado_sqlalchemy.png](evidencias/ev09/32_error_email_duplicado_sqlalchemy.png) · [33_error_validacion_sqlalchemy.png](evidencias/ev09/33_error_validacion_sqlalchemy.png) · [34_error_patch_vacio_sqlalchemy.png](evidencias/ev09/34_error_patch_vacio_sqlalchemy.png) · [35_error_put_inexistente_sqlalchemy.png](evidencias/ev09/35_error_put_inexistente_sqlalchemy.png) · [36_error_delete_inexistente_sqlalchemy.png](evidencias/ev09/36_error_delete_inexistente_sqlalchemy.png) · [37_persistencia_entre_sesiones.png](evidencias/ev09/37_persistencia_entre_sesiones.png) · [38_gitflow_ev09.png](evidencias/ev09/38_gitflow_ev09.png)
+
+### EV10 - Alembic, relaciones y joins
+
+| Requisito | Evidencia |
+| --- | --- |
+| Alembic y migraciones | [ev10_01_alembic_init.png](evidencias/ev10/ev10_01_alembic_init.png), [ev10_02_alembic_revision.png](evidencias/ev10/ev10_02_alembic_revision.png), [ev10_03_alembic_upgrade_history.png](evidencias/ev10/ev10_03_alembic_upgrade_history.png) |
+| Tablas, Swagger y recursos | [ev10_04_estructura_tablas.png](evidencias/ev10/ev10_04_estructura_tablas.png), [ev10_05_swagger_general.png](evidencias/ev10/ev10_05_swagger_general.png), [ev10_swagger_usuarios_dispositivos_prestamos.png](evidencias/ev10/ev10_swagger_usuarios_dispositivos_prestamos.png), [ev10_06_post_creaciones.png](evidencias/ev10/ev10_06_post_creaciones.png) |
+| Regla de disponibilidad | [ev10_07_error_dispositivo_no_disponible.png](evidencias/ev10/ev10_07_error_dispositivo_no_disponible.png) |
+| Joins y filtros | [ev10_08_loans_details_joins.png](evidencias/ev10/ev10_08_loans_details_joins.png), [ev10_09_filtros_avanzados.png](evidencias/ev10/ev10_09_filtros_avanzados.png) |
+| Devolucion | [ev10_10_devolucion_dispositivo.png](evidencias/ev10/ev10_10_devolucion_dispositivo.png) |
+
+### EV11 - Seguridad
+
+| Requisito | Evidencia |
+| --- | --- |
+| Aplicacion y Swagger OAuth2 | [ev11_01_root_home.png](evidencias/ev11/ev11_01_root_home.png), [ev11_02_swagger_oauth2.png](evidencias/ev11/ev11_02_swagger_oauth2.png) |
+| Registro, login y JWT | [ev11_03_auth_flow.png](evidencias/ev11/ev11_03_auth_flow.png) |
+| Rutas protegidas y roles | [ev11_04_protected_routes.png](evidencias/ev11/ev11_04_protected_routes.png) |
+| CORS y middleware | [ev11_05_cors_middleware.png](evidencias/ev11/ev11_05_cors_middleware.png) |
+| Rate limiting 429 | [ev11_06_rate_limit_429.png](evidencias/ev11/ev11_06_rate_limit_429.png) |
 
 Para las evidencias solicitadas por las guias, usar `/docs`, `/redoc`, Postman o Thunder Client y conservar capturas de:
 
