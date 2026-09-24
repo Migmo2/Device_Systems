@@ -4,13 +4,13 @@ API REST para la gestión de usuarios del sistema
 """
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
-from app.routes import user_routes
+from app.routes import device_routes, loan_routes, relationship_routes, user_routes
 
 # Crear aplicación FastAPI
 app = FastAPI(
     title="device_systems API",
-    description="API REST para la gestión de usuarios en el sistema device_systems",
-    version="2.0.0",
+    description="API REST para gestionar usuarios, dispositivos y prestamos en device_systems",
+    version="2.1.0",
     contact={"name": "Pafuna08", "url": "https://github.com/Pafuna08/device_systems"},
     docs_url="/docs",
     redoc_url="/redoc"
@@ -18,6 +18,9 @@ app = FastAPI(
 
 # Incluir rutas de usuarios
 app.include_router(user_routes.router)
+app.include_router(device_routes.router)
+app.include_router(loan_routes.router)
+app.include_router(relationship_routes.router)
 
 
 @app.get(

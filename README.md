@@ -1,6 +1,6 @@
 # device_systems API
 
-API REST para administrar usuarios con FastAPI, Pydantic v2 y SQLAlchemy. Esta version conserva la guia EV08 y evoluciona la persistencia para cumplir la guia GA1-220501096-01-AA1-EV09.
+API REST para administrar usuarios, dispositivos y prestamos con FastAPI, Pydantic v2 y SQLAlchemy. Esta version conserva EV08/EV09 y evoluciona el sistema para cumplir la guia GA1-220501096-01-AA1-EV10.
 
 ## Tecnologias
 
@@ -9,6 +9,7 @@ API REST para administrar usuarios con FastAPI, Pydantic v2 y SQLAlchemy. Esta v
 - Pydantic v2
 - SQLAlchemy 2 y SQLite
 - Alembic
+- Relaciones entre usuarios, dispositivos y prestamos
 - Git Flow y GitHub
 - Postman y Thunder Client
 
@@ -28,11 +29,12 @@ Documentacion: `http://127.0.0.1:8000/docs` y `http://127.0.0.1:8000/redoc`.
 ```text
 app/
 ├── main.py
-├── data/users_db.py
+├── database/connection.py
+├── models/{user_model,device_model,loan_model}.py
 ├── dependencies/user_dependencies.py
-├── routes/user_routes.py
-├── schemas/user_schema.py
-└── services/user_service.py
+├── routes/{user_routes,device_routes,loan_routes}.py
+├── schemas/{user_schema,device_schema,loan_schema}.py
+└── services/{user_service,device_service,loan_service}.py
 ```
 
 `routes` recibe peticiones, `schemas` valida datos, `services` concentra la logica, `models` representa tablas y `database` administra sesiones. La dependencia `database_session` entrega una sesion por request y la cierra siempre.
@@ -145,6 +147,27 @@ pytest -q
 ```
 
 Los resultados detallados de EV08 estan en `evidencias/RESULTADOS_GUIA8.md` y las colecciones contienen las peticiones reproducibles.
+
+## Dispositivos y prestamos (EV10)
+
+Los dispositivos se registran con numero de serie unico y disponibilidad. Al crear un prestamo se validan el usuario, el dispositivo y su disponibilidad; el equipo pasa a no disponible. La devolucion marca el prestamo como `returned`, registra `return_date` y libera el dispositivo.
+
+| Metodo | Ruta | Funcion |
+| --- | --- | --- |
+| GET | `/devices` | Lista y filtra por tipo, marca, disponibilidad o busqueda |
+| POST | `/devices` | Crea un dispositivo |
+| PUT/PATCH | `/devices/{device_id}` | Actualiza un dispositivo |
+| DELETE | `/devices/{device_id}` | Elimina si no tiene historial |
+| GET | `/loans` | Lista prestamos con filtros `status`, `user_email`, `device_type` |
+| GET | `/loans/details` | Consulta prestamos con datos de usuario y dispositivo mediante joins |
+| POST | `/loans` | Registra un prestamo y bloquea el dispositivo |
+| PATCH | `/loans/{loan_id}/return` | Registra devolucion y libera el dispositivo |
+| GET | `/users/{user_id}/loans` | Historial de prestamos de un usuario |
+| GET | `/devices/{device_id}/loans` | Historial de prestamos de un dispositivo |
+
+Errores de negocio: `404` para recursos inexistentes, `409` para dispositivo no disponible o prestamo ya devuelto, `400` para numero de serie duplicado y `422` para datos invalidos.
+
+Las pruebas automatizadas de EV10 estan en `tests/test_devices_loans_api.py` e incluyen joins, filtros, integridad del numero de serie, disponibilidad y devolucion.
 
 ## Reflexion final
 
