@@ -4,13 +4,13 @@ API REST segura para gestionar usuarios, dispositivos y prestamos con FastAPI. E
 
 ## Estado del proyecto
 
-| Guia | Resultado |
-| --- | --- |
+| Guia | Resultado                                                   |
+| ---- | ----------------------------------------------------------- |
 | EV07 | GET/POST de usuarios, Pydantic, response models y cabeceras |
-| EV08 | CRUD completo, errores HTTP, Depends y OpenAPI |
-| EV09 | SQLAlchemy, SQLite, Alembic y persistencia de usuarios |
-| EV10 | Dispositivos, prestamos, relaciones, joins y filtros |
-| EV11 | JWT, bcrypt, roles, CORS, middleware y rate limiting |
+| EV08 | CRUD completo, errores HTTP, Depends y OpenAPI              |
+| EV09 | SQLAlchemy, SQLite, Alembic y persistencia de usuarios      |
+| EV10 | Dispositivos, prestamos, relaciones, joins y filtros        |
+| EV11 | JWT, bcrypt, roles, CORS, middleware y rate limiting        |
 
 ## Tecnologias
 
@@ -56,6 +56,7 @@ device_systems/
 ├── app/
 │   ├── auth/
 │   │   ├── auth_routes.py
+│   │   ├── auth_service.py
 │   │   └── security.py
 │   ├── core/
 │   │   ├── config.py
@@ -70,6 +71,8 @@ device_systems/
 │   │   ├── user_model.py
 │   │   ├── device_model.py
 │   │   └── loan_model.py
+│   ├── middlewares/
+│   │   └── request_middleware.py
 │   ├── routes/
 │   │   ├── user_routes.py
 │   │   ├── device_routes.py
@@ -85,7 +88,8 @@ device_systems/
 │   │   ├── device_service.py
 │   │   └── loan_service.py
 │   └── main.py
-├── alembic/versions/
+├── alembic/
+│   └── versions/
 ├── evidencias/
 ├── tests/
 ├── alembic.ini
@@ -119,38 +123,38 @@ La base local `device_systems.db` no se versiona en Git.
 
 ### Usuarios
 
-| Metodo | Ruta | Funcion | Seguridad |
-| --- | --- | --- | --- |
-| GET | `/users` | Lista y filtra por `role` o `is_active` | Bearer JWT |
-| GET | `/users/{user_id}` | Consulta por ID | Bearer JWT |
-| POST | `/users` | Crea un usuario legacy | Publica |
-| PUT | `/users/{user_id}` | Reemplaza todos los campos | Publica |
-| PATCH | `/users/{user_id}` | Actualiza campos enviados | Publica |
-| DELETE | `/users/{user_id}` | Elimina sin contenido | Publica |
+| Metodo | Ruta               | Funcion                                 | Seguridad  |
+| ------ | ------------------ | --------------------------------------- | ---------- |
+| GET    | `/users`           | Lista y filtra por `role` o `is_active` | Bearer JWT |
+| GET    | `/users/{user_id}` | Consulta por ID                         | Bearer JWT |
+| POST   | `/users`           | Crea un usuario legacy                  | Publica    |
+| PUT    | `/users/{user_id}` | Reemplaza todos los campos              | Publica    |
+| PATCH  | `/users/{user_id}` | Actualiza campos enviados               | Publica    |
+| DELETE | `/users/{user_id}` | Elimina sin contenido                   | Publica    |
 
 ### Dispositivos y prestamos
 
-| Metodo | Ruta | Funcion | Seguridad |
-| --- | --- | --- | --- |
-| GET | `/devices` | Filtra por tipo, marca, disponibilidad o busqueda | Publica |
-| GET | `/devices/{device_id}` | Consulta dispositivo | Publica |
-| POST | `/devices` | Crea dispositivo con serial unico | `admin`/`support` |
-| PUT/PATCH | `/devices/{device_id}` | Actualiza dispositivo | `admin`/`support` |
-| DELETE | `/devices/{device_id}` | Elimina sin historial | `admin` |
-| GET | `/loans` | Filtra por estado, correo o tipo | Bearer JWT |
-| GET | `/loans/details` | Consulta con datos relacionados | `admin`/`support` |
-| POST | `/loans` | Registra prestamo y bloquea dispositivo | Bearer JWT |
-| PATCH | `/loans/{loan_id}/return` | Devuelve y libera dispositivo | `admin`/`support` |
-| GET | `/users/{user_id}/loans` | Historial del usuario | `admin`/`support` |
-| GET | `/devices/{device_id}/loans` | Historial del dispositivo | `admin`/`support` |
+| Metodo    | Ruta                         | Funcion                                           | Seguridad         |
+| --------- | ---------------------------- | ------------------------------------------------- | ----------------- |
+| GET       | `/devices`                   | Filtra por tipo, marca, disponibilidad o busqueda | Publica           |
+| GET       | `/devices/{device_id}`       | Consulta dispositivo                              | Publica           |
+| POST      | `/devices`                   | Crea dispositivo con serial unico                 | `admin`/`support` |
+| PUT/PATCH | `/devices/{device_id}`       | Actualiza dispositivo                             | `admin`/`support` |
+| DELETE    | `/devices/{device_id}`       | Elimina sin historial                             | `admin`           |
+| GET       | `/loans`                     | Filtra por estado, correo o tipo                  | Bearer JWT        |
+| GET       | `/loans/details`             | Consulta con datos relacionados                   | `admin`/`support` |
+| POST      | `/loans`                     | Registra prestamo y bloquea dispositivo           | Bearer JWT        |
+| PATCH     | `/loans/{loan_id}/return`    | Devuelve y libera dispositivo                     | `admin`/`support` |
+| GET       | `/users/{user_id}/loans`     | Historial del usuario                             | `admin`/`support` |
+| GET       | `/devices/{device_id}/loans` | Historial del dispositivo                         | `admin`/`support` |
 
 ### Autenticacion
 
-| Metodo | Ruta | Funcion | Limite |
-| --- | --- | --- | --- |
-| POST | `/auth/register` | Registra usuario con password segura | 3/minuto |
-| POST | `/auth/login` | Devuelve token JWT Bearer | 5/minuto |
-| GET | `/auth/me` | Consulta usuario autenticado | JWT |
+| Metodo | Ruta             | Funcion                              | Limite   |
+| ------ | ---------------- | ------------------------------------ | -------- |
+| POST   | `/auth/register` | Registra usuario con password segura | 3/minuto |
+| POST   | `/auth/login`    | Devuelve token JWT Bearer            | 5/minuto |
+| GET    | `/auth/me`       | Consulta usuario autenticado         | JWT      |
 
 ## Seguridad
 

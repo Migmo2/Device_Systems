@@ -2,10 +2,13 @@
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.auth.security import create_access_token, get_password_hash, verify_password
+from app.auth.auth_service import (
+    authenticate_user,
+    build_access_token,
+    register_user as register_user_service,
+)
 from app.core.rate_limit import limiter
 from app.dependencies.database_dependency import database_session
 from app.dependencies.auth_dependency import get_current_active_user
@@ -20,19 +23,10 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 async def register_user(
     request: Request, data: UserRegister, db: Session = Depends(database_session)
 ):
-    if db.scalar(select(User).where(User.email == str(data.email).lower())) is not None:
-        raise HTTPException(status_code=400, detail="El correo ya esta registrado")
-    user = User(
-        name=data.name,
-        email=str(data.email).lower(),
-        role=data.role,
-        is_active=data.is_active,
-        hashed_password=get_password_hash(data.password),
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user
+    try:
+        return register_user_service(db, data)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from None
 
 
 @router.post("/login", response_model=Token, summary="Iniciar sesion")
@@ -42,8 +36,8 @@ async def login_user(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(database_session),
 ):
-    user = db.scalar(select(User).where(User.email == form_data.username.lower()))
-    if user is None or not verify_password(form_data.password, user.hashed_password):
+    user = authenticate_user(db, form_data.username, form_data.password)
+    if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Correo o contrasena incorrectos",
@@ -51,7 +45,7 @@ async def login_user(
         )
     if not user.is_active:
         raise HTTPException(status_code=403, detail="Usuario inactivo")
-    return Token(access_token=create_access_token(str(user.id), user.role))
+    return Token(access_token=build_access_token(user))
 
 
 @router.get("/me", response_model=AuthUserResponse, summary="Consultar usuario autenticado")
