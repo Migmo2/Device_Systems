@@ -1,12 +1,14 @@
 # device_systems API
 
-API REST para administrar usuarios con FastAPI, Pydantic v2 y una base de datos en memoria. Esta version implementa la guia GA1-220501096-01-AA1-EV08: CRUD completo, errores HTTP, Swagger/OpenAPI y Dependency Injection.
+API REST para administrar usuarios con FastAPI, Pydantic v2 y SQLAlchemy. Esta version conserva la guia EV08 y evoluciona la persistencia para cumplir la guia GA1-220501096-01-AA1-EV09.
 
 ## Tecnologias
 
 - Python 3.14
 - FastAPI y Uvicorn
 - Pydantic v2
+- SQLAlchemy 2 y SQLite
+- Alembic
 - Git Flow y GitHub
 - Postman y Thunder Client
 
@@ -33,7 +35,23 @@ app/
 └── services/user_service.py
 ```
 
-`routes` recibe peticiones, `schemas` valida datos, `services` concentra la logica, `data` simula persistencia y `dependencies` reutiliza validaciones con `Depends()`.
+`routes` recibe peticiones, `schemas` valida datos, `services` concentra la logica, `models` representa tablas y `database` administra sesiones. La dependencia `database_session` entrega una sesion por request y la cierra siempre.
+
+## Persistencia y migraciones
+
+La base de desarrollo es SQLite (`device_systems.db`) y no se versiona en Git. El modelo SQLAlchemy `User` define `id`, `name`, `email`, `role`, `is_active` y `created_at`; el correo tiene restriccion `UNIQUE`. Alembic conserva los cambios estructurales:
+
+```powershell
+python -m alembic upgrade head
+python -m alembic history
+```
+
+Para generar una nueva migracion despues de cambiar los modelos:
+
+```powershell
+python -m alembic revision --autogenerate -m "describe el cambio"
+python -m alembic upgrade head
+```
 
 ## Endpoints
 
@@ -120,11 +138,17 @@ Importar `device_systems_postman.json` en Postman o `device_systems_thunder.json
 - [`16_error_delete_inexistente.png`](evidencias/16_error_delete_inexistente.png): error 404 en DELETE.
 - [`RESULTADOS_GUIA8.md`](evidencias/RESULTADOS_GUIA8.md): registro reproducible de estados HTTP y respuestas.
 
-Las pruebas funcionales completas incluyen creacion, actualizacion completa y parcial, eliminacion, filtros y los errores de correo duplicado, datos invalidos, recursos inexistentes y PATCH vacio. Los resultados detallados estan en `RESULTADOS_GUIA8.md` y las colecciones contienen las peticiones reproducibles.
+Las pruebas funcionales completas incluyen creacion, actualizacion completa y parcial, eliminacion, filtros y los errores de correo duplicado, datos invalidos, recursos inexistentes y PATCH vacio. Tambien se automatizaron en `tests/test_users_api.py` con una base SQLite en memoria aislada:
+
+```powershell
+pytest -q
+```
+
+Los resultados detallados de EV08 estan en `evidencias/RESULTADOS_GUIA8.md` y las colecciones contienen las peticiones reproducibles.
 
 ## Reflexion final
 
-La evolucion de `device_systems` permitio pasar de una API basica a una solucion REST organizada. Separar rutas, esquemas, servicios, datos y dependencias facilita el mantenimiento y evita repetir validaciones. PUT y PATCH muestran la diferencia entre reemplazar un recurso y modificar solo algunos campos, mientras que `HTTPException` y los codigos de estado hacen que los errores sean claros para el cliente. Swagger, ReDoc y Git Flow dejaron el proyecto documentado, verificable y preparado para futuras mejoras como autenticacion y persistencia real.
+La evolucion de `device_systems` permitio pasar de una API basica a una solucion REST con persistencia real. Separar rutas, schemas, servicios, modelos y sesiones facilita el mantenimiento. SQLAlchemy permite consultar y modificar la base mediante objetos Python, mientras que Alembic versiona los cambios estructurales sin depender de borrar la base de datos. PUT, PATCH, `HTTPException`, Swagger, ReDoc y Git Flow mantienen el proyecto verificable y preparado para dispositivos, prestamos y autenticacion.
 
 ## Git Flow aplicado
 
