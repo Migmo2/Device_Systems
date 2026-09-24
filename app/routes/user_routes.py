@@ -2,11 +2,13 @@
 
 from typing import Literal, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.dependencies.database_dependency import database_session
+from app.dependencies.auth_dependency import get_current_active_user
+from app.core.rate_limit import limiter
 from app.dependencies.user_dependencies import get_user_or_404
 from app.schemas.user_schema import (
     UserCreate,
@@ -34,12 +36,15 @@ router = APIRouter(prefix="/users", tags=["Users"])
     description="Retorna usuarios y permite filtrar por rol o estado.",
     response_description="Lista de usuarios encontrados",
 )
+@limiter.limit("30/minute")
 async def get_all_users(
+    request: Request,
     role: Optional[Literal["admin", "support", "user"]] = Query(
         None, description="Filtrar por rol"
     ),
     is_active: Optional[bool] = Query(None, description="Filtrar por estado"),
     db: Session = Depends(database_session),
+    _current_user=Depends(get_current_active_user),
 ):
     users = list_users(db, role=role, is_active=is_active)
     return UserListResponse(users=users, total=len(users))
@@ -52,7 +57,9 @@ async def get_all_users(
     description="Retorna un usuario por su identificador.",
     response_description="Usuario encontrado",
 )
-async def get_user_by_id(user=Depends(get_user_or_404)):
+async def get_user_by_id(
+    user=Depends(get_user_or_404), _current_user=Depends(get_current_active_user)
+):
     return user
 
 

@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.dependencies.database_dependency import database_session
+from app.dependencies.auth_dependency import require_admin, require_support
 from app.schemas.device_schema import DeviceCreate, DevicePatch, DeviceResponse, DeviceType, DeviceUpdate
 from app.services.device_service import (
     create_device,
@@ -44,7 +45,11 @@ async def get_device_by_id(device_id: int, db: Session = Depends(database_sessio
 
 
 @router.post("", response_model=DeviceResponse, status_code=status.HTTP_201_CREATED, summary="Crear dispositivo")
-async def create_new_device(data: DeviceCreate, db: Session = Depends(database_session)):
+async def create_new_device(
+    data: DeviceCreate,
+    db: Session = Depends(database_session),
+    _current_user=Depends(require_support),
+):
     payload = data.model_dump()
     if serial_exists(db, payload["serial_number"]):
         raise HTTPException(status_code=400, detail="El numero de serie ya esta registrado")
@@ -56,7 +61,12 @@ async def create_new_device(data: DeviceCreate, db: Session = Depends(database_s
 
 
 @router.put("/{device_id}", response_model=DeviceResponse, summary="Actualizar dispositivo")
-async def replace_device(device_id: int, data: DeviceUpdate, db: Session = Depends(database_session)):
+async def replace_device(
+    device_id: int,
+    data: DeviceUpdate,
+    db: Session = Depends(database_session),
+    _current_user=Depends(require_support),
+):
     device = require_device(db, device_id)
     payload = data.model_dump()
     if serial_exists(db, payload["serial_number"], device_id):
@@ -65,7 +75,12 @@ async def replace_device(device_id: int, data: DeviceUpdate, db: Session = Depen
 
 
 @router.patch("/{device_id}", response_model=DeviceResponse, summary="Actualizar dispositivo parcialmente")
-async def patch_device(device_id: int, data: DevicePatch, db: Session = Depends(database_session)):
+async def patch_device(
+    device_id: int,
+    data: DevicePatch,
+    db: Session = Depends(database_session),
+    _current_user=Depends(require_support),
+):
     device = require_device(db, device_id)
     payload = data.model_dump(exclude_unset=True)
     if not payload:
@@ -76,7 +91,11 @@ async def patch_device(device_id: int, data: DevicePatch, db: Session = Depends(
 
 
 @router.delete("/{device_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Eliminar dispositivo")
-async def remove_device(device_id: int, db: Session = Depends(database_session)):
+async def remove_device(
+    device_id: int,
+    db: Session = Depends(database_session),
+    _current_user=Depends(require_admin),
+):
     device = require_device(db, device_id)
     if device.loans:
         raise HTTPException(status_code=409, detail="No se puede eliminar un dispositivo con historial")
