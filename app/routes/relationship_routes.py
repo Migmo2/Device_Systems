@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from app.dependencies.database_dependency import database_session
+from app.dependencies.auth_dependency import require_support
 from app.models.device_model import Device
 from app.models.loan_model import Loan
 from app.models.user_model import User
@@ -15,7 +16,11 @@ router = APIRouter(tags=["Loans"])
 
 
 @router.get("/users/{user_id}/loans", response_model=list[LoanDetailResponse])
-async def get_user_loans(user_id: int, db: Session = Depends(database_session)):
+async def get_user_loans(
+    user_id: int,
+    db: Session = Depends(database_session),
+    _current_user=Depends(require_support),
+):
     if db.get(User, user_id) is None:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     query = (
@@ -28,7 +33,11 @@ async def get_user_loans(user_id: int, db: Session = Depends(database_session)):
 
 
 @router.get("/devices/{device_id}/loans", response_model=list[LoanDetailResponse])
-async def get_device_loans(device_id: int, db: Session = Depends(database_session)):
+async def get_device_loans(
+    device_id: int,
+    db: Session = Depends(database_session),
+    _current_user=Depends(require_support),
+):
     if db.get(Device, device_id) is None:
         raise HTTPException(status_code=404, detail="Dispositivo no encontrado")
     query = (

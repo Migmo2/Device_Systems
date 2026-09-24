@@ -169,9 +169,32 @@ Errores de negocio: `404` para recursos inexistentes, `409` para dispositivo no 
 
 Las pruebas automatizadas de EV10 estan en `tests/test_devices_loans_api.py` e incluyen joins, filtros, integridad del numero de serie, disponibilidad y devolucion.
 
+## Seguridad y autenticacion (EV11)
+
+La rama `device_systems_security` agrega autenticacion OAuth2 con JWT, hash bcrypt mediante passlib, autorizacion por roles, CORS, middleware de trazabilidad y rate limiting.
+
+| Metodo | Ruta | Seguridad |
+| --- | --- | --- |
+| POST | `/auth/register` | Publica; limite 3 por minuto |
+| POST | `/auth/login` | Publica; limite 5 por minuto |
+| GET | `/auth/me` | Bearer JWT |
+| GET | `/users` | Usuario autenticado |
+| POST | `/devices` | `admin` o `support` |
+| PUT/PATCH | `/devices/{device_id}` | `admin` o `support` |
+| DELETE | `/devices/{device_id}` | `admin` |
+| POST | `/loans` | Usuario autenticado |
+| PATCH | `/loans/{loan_id}/return` | `admin` o `support` |
+| GET | `/loans/details` | `admin` o `support` |
+
+Las contrasenas nunca se guardan en texto plano: `User.hashed_password` almacena exclusivamente el resultado de bcrypt y no forma parte de los response models. Las contrasenas nuevas exigen minimo 8 caracteres, mayuscula, minuscula, numero y ningun espacio.
+
+El middleware agrega `X-App-Name`, `X-API-Version`, `X-Process-Time` y `X-Request-ID`, propagando el identificador enviado por el cliente o generando uno nuevo. CORS permite solamente los origenes definidos en `ALLOWED_ORIGINS`; no se usa `*` con credenciales porque permitiria solicitudes autenticadas desde cualquier origen.
+
+Variables de seguridad: copiar `.env.example` a `.env`, definir un `SECRET_KEY` aleatorio y mantener `.env` fuera de Git. La migracion de autenticacion es `a284dd73e877`.
+
 ## Reflexion final
 
-La evolucion de `device_systems` permitio pasar de una API basica a una solucion REST con persistencia real. Separar rutas, schemas, servicios, modelos y sesiones facilita el mantenimiento. SQLAlchemy permite consultar y modificar la base mediante objetos Python, mientras que Alembic versiona los cambios estructurales sin depender de borrar la base de datos. PUT, PATCH, `HTTPException`, Swagger, ReDoc y Git Flow mantienen el proyecto verificable y preparado para dispositivos, prestamos y autenticacion.
+La evolucion de `device_systems` paso de una API basica a una solucion REST persistente y protegida. SQLAlchemy y Alembic resuelven la evolucion de datos; las relaciones y joins representan prestamos reales; JWT, roles, CORS, middleware y rate limiting reducen riesgos comunes al exponer la API. Las pruebas automatizadas y el Git Flow hacen verificable cada incremento.
 
 ## Git Flow aplicado
 

@@ -11,6 +11,23 @@ from app.dependencies.database_dependency import database_session
 from app.main import app
 
 
+def auth_headers(client: TestClient) -> dict[str, str]:
+    client.post(
+        "/auth/register",
+        json={
+            "name": "Test Admin",
+            "email": "test.admin@example.com",
+            "password": "AdminPass1",
+            "role": "admin",
+        },
+    )
+    token = client.post(
+        "/auth/login",
+        data={"username": "test.admin@example.com", "password": "AdminPass1"},
+    ).json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
+
+
 @pytest.fixture
 def client() -> Generator[TestClient, None, None]:
     engine = create_engine(
@@ -35,6 +52,7 @@ def client() -> Generator[TestClient, None, None]:
 
 
 def test_users_crud_and_duplicate_email(client: TestClient) -> None:
+    headers = auth_headers(client)
     payload = {
         "name": "Ana Perez",
         "email": "ana@example.com",
@@ -46,8 +64,8 @@ def test_users_crud_and_duplicate_email(client: TestClient) -> None:
     assert created.status_code == 201
     user_id = created.json()["id"]
 
-    assert client.get("/users").json()["total"] == 1
-    assert client.get(f"/users/{user_id}").status_code == 200
+    assert client.get("/users", headers=headers).json()["total"] == 2
+    assert client.get(f"/users/{user_id}", headers=headers).status_code == 200
     assert client.put(
         f"/users/{user_id}",
         json={**payload, "name": "Ana Actualizada", "role": "support"},
