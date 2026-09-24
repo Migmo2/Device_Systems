@@ -1,8 +1,5 @@
 """Aplicacion principal segura de device_systems."""
 
-import time
-from uuid import uuid4
-
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,6 +9,7 @@ from slowapi.errors import RateLimitExceeded
 from app.auth import auth_routes
 from app.core.config import settings
 from app.core.rate_limit import limiter
+from app.middlewares.request_middleware import request_middleware
 from app.routes import device_routes, loan_routes, relationship_routes, user_routes
 
 # Crear aplicación FastAPI
@@ -69,7 +67,7 @@ async def root():
                 }
                 h1 { color: #333; }
                 p { color: #666; }
-                .link { 
+                .link {
                     display: inline-block;
                     margin: 10px 10px 10px 0;
                     padding: 10px 15px;
@@ -79,7 +77,7 @@ async def root():
                     border-radius: 4px;
                 }
                 .link:hover { background-color: #0056b3; }
-                .info { 
+                .info {
                     background-color: #e7f3ff;
                     padding: 15px;
                     border-left: 4px solid #007bff;
@@ -92,14 +90,14 @@ async def root():
             <div class="container">
                 <h1>🎉 Bienvenido a device_systems API</h1>
                 <p>Esta es la API REST para la gestión de usuarios del sistema device_systems.</p>
-                
+
                 <div class="info">
                     <h3>📚 Documentación Interactiva</h3>
                     <p>Accede a la documentación y prueba los endpoints:</p>
                     <a href="/docs" class="link">Swagger UI</a>
                     <a href="/redoc" class="link">ReDoc</a>
                 </div>
-                
+
                 <div class="info">
                     <h3>🔌 Endpoints Disponibles</h3>
                     <ul>
@@ -113,7 +111,7 @@ async def root():
                         <li><strong>GET /users?is_active=true</strong> - Filtrar por estado</li>
                     </ul>
                 </div>
-                
+
                 <div class="info">
                     <h3>📦 Cabeceras HTTP Personalizadas</h3>
                     <p>Todas las respuestas incluyen:</p>
@@ -141,19 +139,7 @@ async def health_check():
 
 
 # Middleware para agregar cabeceras personalizadas
-@app.middleware("http")
-async def add_custom_headers(request: Request, call_next):
-    """
-    Middleware que agrega cabeceras HTTP personalizadas a todas las respuestas
-    """
-    started_at = time.perf_counter()
-    request_id = request.headers.get("X-Request-ID", str(uuid4()))
-    response = await call_next(request)
-    response.headers["X-App-Name"] = settings.app_name
-    response.headers["X-API-Version"] = settings.api_version
-    response.headers["X-Process-Time"] = f"{time.perf_counter() - started_at:.6f}"
-    response.headers["X-Request-ID"] = request_id
-    return response
+app.middleware("http")(request_middleware)
 
 
 # Manejador de excepciones global
