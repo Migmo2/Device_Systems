@@ -3,7 +3,10 @@
 from typing import Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
+from app.dependencies.database_dependency import database_session
 from app.dependencies.user_dependencies import get_user_or_404
 from app.schemas.user_schema import (
     UserCreate,
@@ -36,8 +39,9 @@ async def get_all_users(
         None, description="Filtrar por rol"
     ),
     is_active: Optional[bool] = Query(None, description="Filtrar por estado"),
+    db: Session = Depends(database_session),
 ):
-    users = list_users(role=role, is_active=is_active)
+    users = list_users(db, role=role, is_active=is_active)
     return UserListResponse(users=users, total=len(users))
 
 
@@ -48,7 +52,7 @@ async def get_all_users(
     description="Retorna un usuario por su identificador.",
     response_description="Usuario encontrado",
 )
-async def get_user_by_id(user: dict = Depends(get_user_or_404)):
+async def get_user_by_id(user=Depends(get_user_or_404)):
     return user
 
 
@@ -60,14 +64,19 @@ async def get_user_by_id(user: dict = Depends(get_user_or_404)):
     description="Registra un usuario con correo unico.",
     response_description="Usuario creado",
 )
-async def create_new_user(user: UserCreate):
+async def create_new_user(user: UserCreate, db: Session = Depends(database_session)):
     user_data = user.model_dump()
-    if email_exists(user_data["email"]):
+    user_data["email"] = str(user_data["email"]).lower()
+    if email_exists(db, user_data["email"]):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"El correo '{user.email}' ya esta registrado en el sistema",
         )
-    return create_user(user_data)
+    try:
+        return create_user(db, user_data)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="El correo ya esta registrado") from None
 
 
 @router.put(
@@ -79,14 +88,15 @@ async def create_new_user(user: UserCreate):
 )
 async def replace_existing_user(
     user_data: UserReplace,
-    user: dict = Depends(get_user_or_404),
+    user=Depends(get_user_or_404),
+    db: Session = Depends(database_session),
 ):
-    if email_exists(user_data.email, exclude_user_id=user["id"]):
+    if email_exists(db, str(user_data.email), exclude_user_id=user.id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"El correo '{user_data.email}' ya esta registrado en el sistema",
         )
-    return replace_user(user["id"], user_data.model_dump())
+    return replace_user(db, user.id, user_data.model_dump())
 
 
 @router.patch(
@@ -98,7 +108,8 @@ async def replace_existing_user(
 )
 async def patch_existing_user(
     user_data: UserPatch,
-    user: dict = Depends(get_user_or_404),
+    user=Depends(get_user_or_404),
+    db: Session = Depends(database_session),
 ):
     changes = user_data.model_dump(exclude_unset=True)
     if not changes:
@@ -107,13 +118,13 @@ async def patch_existing_user(
             detail="Debe enviar al menos un campo para actualizar",
         )
     if "email" in changes and email_exists(
-        changes["email"], exclude_user_id=user["id"]
+        db, str(changes["email"]), exclude_user_id=user.id
     ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"El correo '{user_data.email}' ya esta registrado en el sistema",
         )
-    return update_user(user["id"], changes)
+    return update_user(db, user.id, changes)
 
 
 @router.delete(
@@ -123,5 +134,7 @@ async def patch_existing_user(
     description="Elimina un usuario existente y no retorna contenido.",
     response_description="Usuario eliminado",
 )
-async def delete_existing_user(user: dict = Depends(get_user_or_404)):
-    delete_user(user["id"])
+async def delete_existing_user(
+    user=Depends(get_user_or_404), db: Session = Depends(database_session)
+):
+    delete_user(db, user.id)
