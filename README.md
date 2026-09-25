@@ -2,6 +2,8 @@
 
 API REST segura para Sistema desarrollado para la gestión de dispositivos.
 
+## Autor: Miguel Angel Montoya
+
 ## Estado del proyecto
 
 | Guia | Resultado                                                   |
