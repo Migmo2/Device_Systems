@@ -228,7 +228,7 @@ Resultado actual:
 El flujo Git utilizado fue:
 
 - Desarrollo en ramas.
-- Commits con la identidad `gilmaro6`.
+- Commits con la identidad `migmo2`.
 - Pull y merge hacia `main`.
 - Publicacion de cada avance en GitHub.
 

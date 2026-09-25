@@ -1,6 +1,6 @@
 # device_systems
 
-API REST segura para gestionar usuarios, dispositivos y prestamos con FastAPI. El proyecto evoluciona incrementalmente desde EV07 hasta EV11 y actualmente incluye persistencia SQLAlchemy, migraciones Alembic, relaciones, JWT, roles, CORS, middleware y rate limiting.
+API REST segura para Sistema desarrollado para la gestión de dispositivos.
 
 ## Estado del proyecto
 
@@ -128,35 +128,35 @@ La base local `device_systems.db` no se versiona en Git.
 
 ### Usuarios
 
-| Metodo | Ruta               | Funcion                                 | Seguridad  |
-| ------ | ------------------ | --------------------------------------- | ---------- |
-| GET    | `/users`           | Lista y filtra por `role` o `is_active` | Bearer JWT |
-| GET    | `/users/{user_id}` | Consulta por ID                         | Bearer JWT |
-| POST   | `/users`           | Crea un usuario legacy                  | Publica    |
-| PUT    | `/users/{user_id}` | Reemplaza todos los campos              | Publica    |
-| PATCH  | `/users/{user_id}` | Actualiza campos enviados               | Publica    |
-| DELETE | `/users/{user_id}` | Elimina sin contenido                   | Publica    |
+| Metodo | Ruta                 | Funcion                                    | Seguridad  |
+| ------ | -------------------- | ------------------------------------------ | ---------- |
+| GET    | `/users`           | Lista y filtra por`role` o `is_active` | Bearer JWT |
+| GET    | `/users/{user_id}` | Consulta por ID                            | Bearer JWT |
+| POST   | `/users`           | Crea un usuario legacy                     | Publica    |
+| PUT    | `/users/{user_id}` | Reemplaza todos los campos                 | Publica    |
+| PATCH  | `/users/{user_id}` | Actualiza campos enviados                  | Publica    |
+| DELETE | `/users/{user_id}` | Elimina sin contenido                      | Publica    |
 
 ### Dispositivos y prestamos
 
-| Metodo    | Ruta                         | Funcion                                           | Seguridad         |
-| --------- | ---------------------------- | ------------------------------------------------- | ----------------- |
-| GET       | `/devices`                   | Filtra por tipo, marca, disponibilidad o busqueda | Publica           |
-| GET       | `/devices/{device_id}`       | Consulta dispositivo                              | Publica           |
+| Metodo    | Ruta                           | Funcion                                           | Seguridad             |
+| --------- | ------------------------------ | ------------------------------------------------- | --------------------- |
+| GET       | `/devices`                   | Filtra por tipo, marca, disponibilidad o busqueda | Publica               |
+| GET       | `/devices/{device_id}`       | Consulta dispositivo                              | Publica               |
 | POST      | `/devices`                   | Crea dispositivo con serial unico                 | `admin`/`support` |
 | PUT/PATCH | `/devices/{device_id}`       | Actualiza dispositivo                             | `admin`/`support` |
-| DELETE    | `/devices/{device_id}`       | Elimina sin historial                             | `admin`           |
-| GET       | `/loans`                     | Filtra por estado, correo o tipo                  | Bearer JWT        |
+| DELETE    | `/devices/{device_id}`       | Elimina sin historial                             | `admin`             |
+| GET       | `/loans`                     | Filtra por estado, correo o tipo                  | Bearer JWT            |
 | GET       | `/loans/details`             | Consulta con datos relacionados                   | `admin`/`support` |
-| POST      | `/loans`                     | Registra prestamo y bloquea dispositivo           | Bearer JWT        |
+| POST      | `/loans`                     | Registra prestamo y bloquea dispositivo           | Bearer JWT            |
 | PATCH     | `/loans/{loan_id}/return`    | Devuelve y libera dispositivo                     | `admin`/`support` |
 | GET       | `/users/{user_id}/loans`     | Historial del usuario                             | `admin`/`support` |
 | GET       | `/devices/{device_id}/loans` | Historial del dispositivo                         | `admin`/`support` |
 
 ### Autenticacion
 
-| Metodo | Ruta             | Funcion                              | Limite   |
-| ------ | ---------------- | ------------------------------------ | -------- |
+| Metodo | Ruta               | Funcion                              | Limite   |
+| ------ | ------------------ | ------------------------------------ | -------- |
 | POST   | `/auth/register` | Registra usuario con password segura | 3/minuto |
 | POST   | `/auth/login`    | Devuelve token JWT Bearer            | 5/minuto |
 | GET    | `/auth/me`       | Consulta usuario autenticado         | JWT      |
@@ -240,11 +240,11 @@ Capturas base de GET, POST, validaciones, filtros, response models y cabeceras:
 
 ### EV08 - CRUD y errores
 
-| Requisito | Evidencia |
-| --- | --- |
-| Swagger y ReDoc | [6_swagger_crud.png](evidencias/ev08/6_swagger_crud.png), [7_redoc_crud.png](evidencias/ev08/7_redoc_crud.png), [7.1_redoc_crud.png](evidencias/ev08/7.1_redoc_crud.png) |
-| POST, PUT y PATCH | [8_post_exitoso.png](evidencias/ev08/8_post_exitoso.png), [9_put_exitoso.png](evidencias/ev08/9_put_exitoso.png), [10_patch_exitoso.png](evidencias/ev08/10_patch_exitoso.png) |
-| DELETE | [11_delete_exitoso.png](evidencias/ev08/11_delete_exitoso.png) |
+| Requisito           | Evidencia                                                                                                                                                                                                                                                                                                                                                                                       |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Swagger y ReDoc     | [6_swagger_crud.png](evidencias/ev08/6_swagger_crud.png), [7_redoc_crud.png](evidencias/ev08/7_redoc_crud.png), [7.1_redoc_crud.png](evidencias/ev08/7.1_redoc_crud.png)                                                                                                                                                                                                                           |
+| POST, PUT y PATCH   | [8_post_exitoso.png](evidencias/ev08/8_post_exitoso.png), [9_put_exitoso.png](evidencias/ev08/9_put_exitoso.png), [10_patch_exitoso.png](evidencias/ev08/10_patch_exitoso.png)                                                                                                                                                                                                                     |
+| DELETE              | [11_delete_exitoso.png](evidencias/ev08/11_delete_exitoso.png)                                                                                                                                                                                                                                                                                                                                   |
 | Errores controlados | [12_error_correo_duplicado.png](evidencias/ev08/12_error_correo_duplicado.png), [13_error_datos_invalidos.png](evidencias/ev08/13_error_datos_invalidos.png), [14_error_patch_vacio.png](evidencias/ev08/14_error_patch_vacio.png), [15_error_put_inexistente.png](evidencias/ev08/15_error_put_inexistente.png), [16_error_delete_inexistente.png](evidencias/ev08/16_error_delete_inexistente.png) |
 
 ### EV09 - SQLAlchemy y persistencia
@@ -255,23 +255,23 @@ Capturas de estructura, SQLite, Swagger, CRUD, filtros, errores, persistencia en
 
 ### EV10 - Alembic, relaciones y joins
 
-| Requisito | Evidencia |
-| --- | --- |
-| Alembic y migraciones | [ev10_01_alembic_init.png](evidencias/ev10/ev10_01_alembic_init.png), [ev10_02_alembic_revision.png](evidencias/ev10/ev10_02_alembic_revision.png), [ev10_03_alembic_upgrade_history.png](evidencias/ev10/ev10_03_alembic_upgrade_history.png) |
+| Requisito                  | Evidencia                                                                                                                                                                                                                                                                                                                                                |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Alembic y migraciones      | [ev10_01_alembic_init.png](evidencias/ev10/ev10_01_alembic_init.png), [ev10_02_alembic_revision.png](evidencias/ev10/ev10_02_alembic_revision.png), [ev10_03_alembic_upgrade_history.png](evidencias/ev10/ev10_03_alembic_upgrade_history.png)                                                                                                              |
 | Tablas, Swagger y recursos | [ev10_04_estructura_tablas.png](evidencias/ev10/ev10_04_estructura_tablas.png), [ev10_05_swagger_general.png](evidencias/ev10/ev10_05_swagger_general.png), [ev10_swagger_usuarios_dispositivos_prestamos.png](evidencias/ev10/ev10_swagger_usuarios_dispositivos_prestamos.png), [ev10_06_post_creaciones.png](evidencias/ev10/ev10_06_post_creaciones.png) |
-| Regla de disponibilidad | [ev10_07_error_dispositivo_no_disponible.png](evidencias/ev10/ev10_07_error_dispositivo_no_disponible.png) |
-| Joins y filtros | [ev10_08_loans_details_joins.png](evidencias/ev10/ev10_08_loans_details_joins.png), [ev10_09_filtros_avanzados.png](evidencias/ev10/ev10_09_filtros_avanzados.png) |
-| Devolucion | [ev10_10_devolucion_dispositivo.png](evidencias/ev10/ev10_10_devolucion_dispositivo.png) |
+| Regla de disponibilidad    | [ev10_07_error_dispositivo_no_disponible.png](evidencias/ev10/ev10_07_error_dispositivo_no_disponible.png)                                                                                                                                                                                                                                                |
+| Joins y filtros            | [ev10_08_loans_details_joins.png](evidencias/ev10/ev10_08_loans_details_joins.png), [ev10_09_filtros_avanzados.png](evidencias/ev10/ev10_09_filtros_avanzados.png)                                                                                                                                                                                         |
+| Devolucion                 | [ev10_10_devolucion_dispositivo.png](evidencias/ev10/ev10_10_devolucion_dispositivo.png)                                                                                                                                                                                                                                                                  |
 
 ### EV11 - Seguridad
 
-| Requisito | Evidencia |
-| --- | --- |
+| Requisito                   | Evidencia                                                                                                                              |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Aplicacion y Swagger OAuth2 | [ev11_01_root_home.png](evidencias/ev11/ev11_01_root_home.png), [ev11_02_swagger_oauth2.png](evidencias/ev11/ev11_02_swagger_oauth2.png) |
-| Registro, login y JWT | [ev11_03_auth_flow.png](evidencias/ev11/ev11_03_auth_flow.png) |
-| Rutas protegidas y roles | [ev11_04_protected_routes.png](evidencias/ev11/ev11_04_protected_routes.png) |
-| CORS y middleware | [ev11_05_cors_middleware.png](evidencias/ev11/ev11_05_cors_middleware.png) |
-| Rate limiting 429 | [ev11_06_rate_limit_429.png](evidencias/ev11/ev11_06_rate_limit_429.png) |
+| Registro, login y JWT       | [ev11_03_auth_flow.png](evidencias/ev11/ev11_03_auth_flow.png)                                                                          |
+| Rutas protegidas y roles    | [ev11_04_protected_routes.png](evidencias/ev11/ev11_04_protected_routes.png)                                                            |
+| CORS y middleware           | [ev11_05_cors_middleware.png](evidencias/ev11/ev11_05_cors_middleware.png)                                                              |
+| Rate limiting 429           | [ev11_06_rate_limit_429.png](evidencias/ev11/ev11_06_rate_limit_429.png)                                                                |
 
 Para las evidencias solicitadas por las guias, usar `/docs`, `/redoc`, Postman o Thunder Client y conservar capturas de:
 
